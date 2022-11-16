@@ -100,6 +100,8 @@ The following `*_WIDTH` and `*_HEIGHT` `#define`s specify the **percentage** wid
 
 ```C++
 ...
+#define CONT_WIDTH PW(15)
+...
 #define DAY_WIDTH PW(70)
 #define DAY_HEIGHT PH(13)
 #define DATE_WIDTH PW(70)
@@ -121,17 +123,55 @@ DisplayPanel dayPanel(CONT_WIDTH, DATE_HEIGHT, DAY_WIDTH, DAY_HEIGHT);
 
 The method `initializePanels(...)` should only be called once. It should define the initial font, color, text color, etc. for each of the DisplayPanels. Anything that doesn't change when the display is redrawn should be set here. 
 
+```C++
+void initializePanels(esphome::display::DisplayBuffer &display) {
+    dayPanel.font = font_day;
+    dayPanel.color = Color::BLACK;
+    dayPanel.textColor = color_text_white;
+
+    datePanel.font = font_date;
+    datePanel.color = Color::BLACK;
+    datePanel.textColor = color_text_white;
+}
+
 ## updatePanelStates(...), once per display update
 
 Every time the display is updated / needs to be redrawn, the method `updatePanelStates(...)` should be used to define any changes to the states of any DisplayPanels. If your program is a clock, it should update one of the DisplayPanels with the current time each time `updatePanelStates(...)` is called.
 
 At this time, the **one or more** strings of `.text` will always be printed in the **center** of the DisplayPanel.
 
+```C++
+void updatePanelStates(esphome::display::DisplayBuffer &display) {
+    auto now = esptime->now();
+
+    // Day of the week
+    std::string dayName = now.strftime("%A");
+    std::vector<std::string> dayText = { dayName };
+    dayPanel.text = dayText;
+
+    // Date
+    std::string monthName = now.strftime("%b");
+    sprintf(buffer, "%s. %d", monthName.c_str(), now.day_of_month);
+    std::vector<std::string> dateText = { buffer };
+    datePanel.text = dateText;
+}
+```
+
 ## drawPanels(...), once per display update
 
 This is where the panel is actually drawn to the display.
 
 This should call `.draw(...)` for each DisplayPanel, and/or use the more optimized `DisplayPanel::drawAllPanels(...)` to more than one DisplayPanel in a single call.
+
+```C++
+void drawPanels(esphome::display::DisplayBuffer &display) {
+    // drawAllPanels is generally preferred
+    DisplayPanel::drawAllPanels(display, {
+        datePanel,
+        dayPanel,
+    });
+}
+```
 
 ## Detecting touch, in the .yaml file
 
