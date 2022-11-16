@@ -133,6 +133,7 @@ void initializePanels(esphome::display::DisplayBuffer &display) {
     datePanel.color = Color::BLACK;
     datePanel.textColor = color_text_white;
 }
+```
 
 ## updatePanelStates(...), once per display update
 
