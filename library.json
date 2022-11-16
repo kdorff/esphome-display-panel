@@ -1,0 +1,20 @@
+{
+    "name": "esphome-display-panel",
+    "version": "0.0.1",
+    "description": "DisplayPanel makes it easier to make UIs for esphome display, including simplifing touch.",
+    "keywords": "esphome display",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/kdorff/esphome-display-panel.git"
+    },
+    "authors": [
+      {
+        "name": "kdorff"
+      }
+    ],
+    "license": "MIT",
+    "homepage": "https://github.com/kdorff/esphome-display-panel",
+    "dependencies": {},
+    "frameworks": "*",
+    "platforms": "*"
+  }
