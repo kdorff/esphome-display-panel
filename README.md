@@ -16,7 +16,7 @@ Supports touch to adjust brightness.
 * Model and pics https://www.thingiverse.com/thing:5607245
 * Code https://github.com/kdorff/esphome/tree/main/tft-office
 
-# How to use esphome-dislay-panel
+# How to use esphome-display-panel
 
 I will highlight the important features of the [tft-office](https://github.com/kdorff/esphome/tree/main/tft-office)
 
@@ -55,12 +55,12 @@ This enables the use of the DisplayPanel C++ class.
 
 ## The display: lambda: loop in the .yaml file
 
-The way one updates the `display:` component in ESPHome is by providing code in its `lambda` stanza. The actal initialization and update code will be found in the `.h` file. To call this code, we define the `display:`'s `lambda:` as such
+The way one updates the `display:` component in ESPHome is by providing code in its `lambda` stanza. The actual **initialization**, **state update**, and **drawing** code will be found in the `.h` file. To call this code, we define the `display:`'s `lambda:` as such
 
 ```yaml
 display:
   - ...
-    # How often to update the displsay
+    # How often to update the display
     update_interval: 1s
     # Code to update the display
     lambda: |-
@@ -107,21 +107,23 @@ The following `*_WIDTH` and `*_HEIGHT` `#define`s specify the **percentage** wid
 ...
 ```
 
-Finally, we define a DisplayPanel for each display element we want in the UI. 
+Finally, we define a DisplayPanel for each element we want in the UI. 
 
 ```C++
+...
 // The constructor arguments are X, Y, Width, Height
 DisplayPanel datePanel(CONT_WIDTH, 0, DATE_WIDTH, DATE_HEIGHT);
 DisplayPanel dayPanel(CONT_WIDTH, DATE_HEIGHT, DAY_WIDTH, DAY_HEIGHT);
+...
 ```
 
 ## initializePanels(...), only at startup
 
-The method `initializePanels(...)` should only be called once. It should define the initial font, color, text color, etc. for each of the DisplayPanels. Anything that doesn't change from loop-to-loop can be set here. 
+The method `initializePanels(...)` should only be called once. It should define the initial font, color, text color, etc. for each of the DisplayPanels. Anything that doesn't change when the display is redrawn should be set here. 
 
 ## updatePanelStates(...), once per display update
 
-Every time the display is updated, the method `updatePanelStates(...)` should be used to define any changes to the states of any DisplayPanels. If your program is a clock, it should update one of the DisplayPanels with the time.
+Every time the display is updated / needs to be redrawn, the method `updatePanelStates(...)` should be used to define any changes to the states of any DisplayPanels. If your program is a clock, it should update one of the DisplayPanels with the current time each time `updatePanelStates(...)` is called.
 
 At this time, the **one or more** strings of `.text` will always be printed in the **center** of the DisplayPanel.
 
