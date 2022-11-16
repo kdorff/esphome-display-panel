@@ -39,7 +39,7 @@ esphome:
     esphome-display-panel=https://github.com/kdorff/esphome-display-panel.git#v0.0.1
 ```
 
-The `includes:` stanza is including the `tft-room-time-temp.h` file where we will be doing data initialization and per-update DisplayPanel state updates.
+The `includes:` stanza is including the `tft-room-time-temp.h` file where we will be doing data initialization, state updates, drawing, etc.
 
 The `libraries:` stanza is include this `esphome-display-panel project`, version `v0.0.1`.
 
@@ -55,7 +55,7 @@ This enables the use of the DisplayPanel C++ class.
 
 ## The display: lambda: loop in the .yaml file
 
-The way one updates the `display:` component in ESPHome is by providing code in its `lambda` stanza. The actual **initialization**, **state update**, and **drawing** code will be found in the `.h` file. To call this code, we define the `display:`'s `lambda:` as such
+The way one updates a `display:` component in ESPHome is by providing code in its `lambda:` stanza. The actual **initialization**, **state update**, and **drawing** code will be found in the `.h` file, but will be called by the code we define the `display:`'s `lambda:` such as
 
 ```yaml
 display:
