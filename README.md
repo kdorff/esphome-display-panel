@@ -1,5 +1,5 @@
 # esphome-display-panel
-`DisplayPanel` class for [ESPHome](https://esphome.io/) [display:](https://esphome.io/components/display/index.html) objects.
+`DisplayPanel` class for [ESPHome](https://esphome.io/) [display:](https://esphome.io/components/display/index.html) objects. 
 
 DisplayPanel provides a rectangular panel to be displayed on the LCD/OLED display that we can  write one or more lines of centered text to. One can also use DisplayPanel to easily detect if a panel is within range of a touch event.
 
@@ -36,12 +36,12 @@ esphome:
   includes:
     - tft-room-time-temp.h
   libraries:
-    esphome-display-panel=https://github.com/kdorff/esphome-display-panel.git#v0.0.1
+    esphome-display-panel=https://github.com/kdorff/esphome-display-panel.git#v0.0.3
 ```
 
 The `includes:` stanza is including the `tft-room-time-temp.h` file where we will be doing data initialization, state updates, drawing, etc.
 
-The `libraries:` stanza is include this `esphome-display-panel project`, version `v0.0.1`.
+The `libraries:` stanza is include this `esphome-display-panel project`, version `v0.0.3`.
 
 ## The .h file, adding the esphome-display-panel library
 
@@ -168,8 +168,8 @@ This should call `.draw(...)` for each DisplayPanel, and/or use the more optimiz
 void drawPanels(esphome::display::DisplayBuffer &display) {
     // drawAllPanels is generally preferred
     DisplayPanel::drawAllPanels(display, {
-        datePanel,
-        dayPanel,
+        &datePanel,
+        &dayPanel,
     });
 }
 ```

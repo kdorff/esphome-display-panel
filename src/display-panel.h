@@ -1,6 +1,9 @@
 #include "esphome.h"
 #include <vector>
 
+#ifndef KCDC_DISPLAY_PANEL
+#define KCDC_DISPLAY_PANEL
+
 // A rectangular panel to be displayed on the LCD that we can 
 // write one or more lines of centered text to.
 // One can also determine if a DisplayPanel is in the 
@@ -38,13 +41,19 @@ class DisplayPanel {
 
         // Color of the panel
         esphome::Color color;
+
         // Color of the text printed to the panel
         esphome::Color textColor;
+
         // Font of the text printed to the panel
         esphome::display::Font *font;
 
+        // Image. If provided will be used instead of of text.
+        esphome::display::Image *image = NULL;
+
         // Text lines to print on the panel.
         std::vector<std::string> text = { };
+
 
         // Constructor
         DisplayPanel(unsigned int _x, unsigned int _y, unsigned int _w, unsigned int _h) {
@@ -58,15 +67,15 @@ class DisplayPanel {
 
         void draw(esphome::display::DisplayBuffer &display) {
             drawRect(display);
-            drawText(display);
+            drawImageOrText(display);
         }
 
-        static void drawAllPanels(esphome::display::DisplayBuffer &display, std::vector<DisplayPanel> panels) {
-            for (std::vector<DisplayPanel>::iterator panel = panels.begin(); panel != panels.end(); panel++) {
-                (*panel).drawRect(display);
+        static void drawAllPanels(esphome::display::DisplayBuffer &display, std::vector<DisplayPanel*> panels) {
+            for (std::vector<DisplayPanel*>::iterator panel = panels.begin(); panel != panels.end(); panel++) {
+                (*(*panel)).drawRect(display);
             }
-            for (std::vector<DisplayPanel>::iterator panel = panels.begin(); panel != panels.end(); panel++) {
-                (*panel).drawText(display);
+            for (std::vector<DisplayPanel*>::iterator panel = panels.begin(); panel != panels.end(); panel++) {
+                (*(*panel)).drawImageOrText(display);
             }
         }
 
@@ -94,17 +103,22 @@ class DisplayPanel {
             }
         }
 
-        void drawText(esphome::display::DisplayBuffer &display) {
+        void drawImageOrText(esphome::display::DisplayBuffer &display) {
             if (!enabled || w == 0 || h == 0) {
                 // Noththing to draw.
                 return;
             }
 
-            if (text.size() == 1) {
-                printMiddle(display, text[0].c_str());
+            if (image != NULL) {
+                drawImage(display);
             }
-            else if (text.size() > 1) {
-                printMulti(display, text);
+            else {
+                if (text.size() == 1) {
+                    printMiddle(display, text[0].c_str());
+                }
+                else if (text.size() > 1) {
+                    printMulti(display, text);
+                }
             }
         }
 
@@ -141,4 +155,11 @@ class DisplayPanel {
                 y + ((int) (h/2) + fontVertOffset), 
                 font, textColor, TextAlign::CENTER, text);
         }
+
+        // Draw image on panel.
+        void drawImage(esphome::display::DisplayBuffer &display) {
+            display.image(x, y, image);
+        }
 };
+
+#endif
