@@ -84,6 +84,7 @@ class DisplayPanel {
         // See the touched x,y location is in the range of the Panel.
         bool isTouchOnPanel(int tpX, int tpY) {
             bool found =
+                (enabled) &&
                 (tpX >= x && tpX <= max_x) && 
                 (tpY >= y && tpY <= max_y);
             return found;
