@@ -54,6 +54,8 @@ class DisplayPanel {
         // Text lines to print on the panel.
         std::vector<std::string> text = { };
 
+        // Use tag for whatever you'd like.
+        std::string tag;
 
         // Constructor
         DisplayPanel(unsigned int _x, unsigned int _y, unsigned int _w, unsigned int _h) {
