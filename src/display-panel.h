@@ -63,6 +63,9 @@ class DisplayPanel {
         // Use tag for whatever you'd like.
         std::string tag;
 
+        // DisplayPanel that was touched in the last call to isPanelTouched()
+        static DisplayPanel *lastTouchedPanel = NULL;
+
         // Constructor
         DisplayPanel(unsigned int _x, unsigned int _y, unsigned int _w, unsigned int _h) {
             x = _x;
@@ -78,15 +81,6 @@ class DisplayPanel {
             drawImageOrText(display);
         }
 
-        static void drawAllPanels(esphome::display::DisplayBuffer &display, std::vector<DisplayPanel*> panels) {
-            for (std::vector<DisplayPanel*>::iterator panel = panels.begin(); panel != panels.end(); panel++) {
-                (*(*panel)).drawRect(display);
-            }
-            for (std::vector<DisplayPanel*>::iterator panel = panels.begin(); panel != panels.end(); panel++) {
-                (*(*panel)).drawImageOrText(display);
-            }
-        }
-
         // See the touched x,y location is in the range of the Panel.
         bool isTouchOnPanel(int tpX, int tpY) {
             bool found =
@@ -96,6 +90,28 @@ class DisplayPanel {
                 (tpY >= y && tpY <= max_y);
             return found;
         }
+
+        static void drawAllPanels(esphome::display::DisplayBuffer &display, std::vector<DisplayPanel*> panels) {
+            for (std::vector<DisplayPanel*>::iterator panel = panels.begin(); panel != panels.end(); panel++) {
+                (*(*panel)).drawRect(display);
+            }
+            for (std::vector<DisplayPanel*>::iterator panel = panels.begin(); panel != panels.end(); panel++) {
+                (*(*panel)).drawImageOrText(display);
+            }
+        }
+
+        static boolean isPanelTouched(std::vector<DisplayPanel*> panels, int tpX, int tpY) {
+            lastTouchedPanel = NULL;
+            for (std::vector<DisplayPanel*>::iterator panel = panels.begin(); panel != panels.end(); panel++) {
+                if ((*(*panel)).isTouchOnPanel(tpX, tpY)) {
+                    ESP_LOGD("DisplayPanel", "touched %s x=%d, y=%d", (*(*panel)).text[0].c_str(), tpX, tpX);
+                    lastTouchedPanel = &(*(*panel));
+                    return true;
+                }
+            }
+            return false;
+        }
+
     protected:
         // Draw the Panel in the specified location
         // at the specified color.
