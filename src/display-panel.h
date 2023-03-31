@@ -1,4 +1,4 @@
-//#include "esphome.h"
+#include "esphome.h"
 #include <vector>
 
 #ifndef KCDC_DISPLAY_PANEL
