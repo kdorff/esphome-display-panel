@@ -24,6 +24,9 @@ class DisplayPanel {
 
         bool enabled = true;
 
+        // If it should respond to touch events
+        bool touchable = true;
+
         // Reduction of font height when calculating positioning
         // in printMulti(). 
         // If the lines are too far apart, increase this value.
@@ -53,6 +56,9 @@ class DisplayPanel {
 
         // Text lines to print on the panel.
         std::vector<std::string> text = { };
+
+        // Use name for whatever you'd like.
+        std::string name;
 
         // Use tag for whatever you'd like.
         std::string tag;
@@ -85,6 +91,7 @@ class DisplayPanel {
         bool isTouchOnPanel(int tpX, int tpY) {
             bool found =
                 (enabled) &&
+                (touchable) &&
                 (tpX >= x && tpX <= max_x) && 
                 (tpY >= y && tpY <= max_y);
             return found;
