@@ -1,4 +1,4 @@
-#include "esphome.h"
+//#include "esphome.h"
 #include <vector>
 
 #ifndef KCDC_DISPLAY_PANEL
@@ -87,20 +87,25 @@ class DisplayPanel {
                 (tpY >= y && tpY <= max_y);
         }
 
-        static void drawAllPanels(esphome::display::DisplayBuffer &display, std::vector<DisplayPanel*> panels) {
-            for (std::vector<DisplayPanel*>::iterator panel = panels.begin(); panel != panels.end(); panel++) {
-                (*(*panel)).drawRect(display);
+        static void drawAllPanels(esphome::display::DisplayBuffer& display, std::vector<DisplayPanel*> panels) {
+            int size = panels.size();
+            for (int i = 0; i < size; i++) {
+                DisplayPanel* panel = panels[i];
+                panel->drawRect(display);
             }
-            for (std::vector<DisplayPanel*>::iterator panel = panels.begin(); panel != panels.end(); panel++) {
-                (*(*panel)).drawImageOrText(display);
+            for (int i = 0; i < size; i++) {
+                DisplayPanel* panel = panels[i];
+                panel->drawImageOrText(display);
             }
         }
 
-        static DisplayPanel *touchedPanel(std::vector<DisplayPanel*> panels, int tpX, int tpY) {
-            for (std::vector<DisplayPanel*>::iterator panel = panels.begin(); panel != panels.end(); panel++) {
-                if ((*(*panel)).isTouchOnPanel(tpX, tpY)) {
-                    ESP_LOGD("DisplayPanel", "touched %s x=%d, y=%d", (*(*panel)).text[0].c_str(), tpX, tpX);
-                    return &(*(*panel));
+        static DisplayPanel* touchedPanel(std::vector<DisplayPanel*> panels, int tpX, int tpY) {
+            int size = panels.size();
+            for (int i = 0; i < size; i++) {
+                DisplayPanel* panel = panels[i];
+                if (panel->isTouchOnPanel(tpX, tpY)) {
+                    ESP_LOGD("DisplayPanel", "touched %s x=%d, y=%d", panel->text[0].c_str(), tpX, tpX);
+                    return panel;
                 }
             }
             return NULL;
