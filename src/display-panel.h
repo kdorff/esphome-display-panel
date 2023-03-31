@@ -63,9 +63,6 @@ class DisplayPanel {
         // Use tag for whatever you'd like.
         std::string tag;
 
-        // DisplayPanel that was touched in the last call to isPanelTouched()
-        static DisplayPanel *lastTouchedPanel = NULL;
-
         // Constructor
         DisplayPanel(unsigned int _x, unsigned int _y, unsigned int _w, unsigned int _h) {
             x = _x;
@@ -83,12 +80,11 @@ class DisplayPanel {
 
         // See the touched x,y location is in the range of the Panel.
         bool isTouchOnPanel(int tpX, int tpY) {
-            bool found =
+            return
                 (enabled) &&
                 (touchable) &&
                 (tpX >= x && tpX <= max_x) && 
                 (tpY >= y && tpY <= max_y);
-            return found;
         }
 
         static void drawAllPanels(esphome::display::DisplayBuffer &display, std::vector<DisplayPanel*> panels) {
@@ -100,16 +96,14 @@ class DisplayPanel {
             }
         }
 
-        static boolean isPanelTouched(std::vector<DisplayPanel*> panels, int tpX, int tpY) {
-            lastTouchedPanel = NULL;
+        static DisplayPanel *touchedPanel(std::vector<DisplayPanel*> panels, int tpX, int tpY) {
             for (std::vector<DisplayPanel*>::iterator panel = panels.begin(); panel != panels.end(); panel++) {
                 if ((*(*panel)).isTouchOnPanel(tpX, tpY)) {
                     ESP_LOGD("DisplayPanel", "touched %s x=%d, y=%d", (*(*panel)).text[0].c_str(), tpX, tpX);
-                    lastTouchedPanel = &(*(*panel));
-                    return true;
+                    return &(*(*panel));
                 }
             }
-            return false;
+            return NULL;
         }
 
     protected:
