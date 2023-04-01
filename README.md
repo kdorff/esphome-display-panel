@@ -36,12 +36,12 @@ esphome:
   includes:
     - tft-room-time-temp.h
   libraries:
-    esphome-display-panel=https://github.com/kdorff/esphome-display-panel.git#v0.0.3
+    esphome-display-panel=https://github.com/kdorff/esphome-display-panel.git#v0.0.12
 ```
 
 The `includes:` stanza is including the `tft-room-time-temp.h` file where we will be doing data initialization, state updates, drawing, etc.
 
-The `libraries:` stanza is include this `esphome-display-panel project`, version `v0.0.3`.
+The `libraries:` stanza is include this `esphome-display-panel project`, version `v0.0.11`.
 
 ## The .h file, adding the esphome-display-panel library
 
@@ -69,8 +69,8 @@ display:
         initializePanels(it);
         panelsInitialized = 1;
       }
-      updatePanelStates(it);
-      drawPanels(it);
+      updatePanelStates();
+      drawPanels();
 ```
 
 We can see from this, we must provide three methods in our `.h` file: `initializePanels(...)`, `updatePanelStates(...)`, and `drawPanels(...)`.
@@ -109,13 +109,32 @@ The following `*_WIDTH` and `*_HEIGHT` `#define`s specify the **percentage** wid
 ...
 ```
 
-Finally, we define a DisplayPanel for each element we want in the UI. 
+Define a few important variables and create a DisplayPanel for each element we want in the UI. 
 
 ```C++
 ...
+// Current page number
+int pageNumber = 0;
+
+// Last touched page
+DisplayPanel* lastTouchedPanel = NULL;
+
+// The display/lcd we are working with. Defined in initializePanels().
+esphome::display::DisplayBuffer* lcd;
+
+
 // The constructor arguments are X, Y, Width, Height
 DisplayPanel datePanel(CONT_WIDTH, 0, DATE_WIDTH, DATE_HEIGHT);
 DisplayPanel dayPanel(CONT_WIDTH, DATE_HEIGHT, DAY_WIDTH, DAY_HEIGHT);
+
+// The pages of the application.
+std::vector<std::vector<DisplayPanel*>> pages = {
+    {
+        // Page 0.
+        &datePanel,
+        &dayPanel
+    }
+};
 ...
 ```
 
@@ -125,6 +144,8 @@ The method `initializePanels(...)` should only be called once. It should define 
 
 ```C++
 void initializePanels(esphome::display::DisplayBuffer &display) {
+    lcd = &display;
+
     dayPanel.font = font_day;
     dayPanel.color = Color::BLACK;
     dayPanel.textColor = color_text_white;
@@ -142,7 +163,7 @@ Every time the display is updated / needs to be redrawn, the method `updatePanel
 At this time, the **one or more** strings of `.text` will always be printed in the **center** of the DisplayPanel.
 
 ```C++
-void updatePanelStates(esphome::display::DisplayBuffer &display) {
+void updatePanelStates() {
     auto now = esptime->now();
 
     // Day of the week
@@ -166,33 +187,59 @@ This should call `.draw(...)` for each DisplayPanel, and/or use the more optimiz
 
 ```C++
 void drawPanels(esphome::display::DisplayBuffer &display) {
-    // drawAllPanels is generally preferred
-    DisplayPanel::drawAllPanels(display, {
-        &datePanel,
-        &dayPanel,
-    });
+    DisplayPanel::drawAllPanels(*lcd, pages[pageNumber]);
 }
 ```
 
 ## Detecting touch, in the .yaml file
 
-If the display in question also supports *touch*, calling `.isTouchOnPanel(x, y);` for any of the DisplayPanels will return `true` of the touch was on that panel.
+We need to create a method to check the enabled, toucable
+panels on the current page to see if a touch is the target
+of the touch.
 
-In `tft-office.yaml`s `touch:` `on_touch:` stanza, we see where it checks for touch on the `contUpPanel` and `contDownPanel` DisplayPanels, adjust `brightness` accordingly, and sets the TFTs `backlight` to the value stored of `brightness`.
+```C++
+// See if one of the enabled, touchable panels on the
+// current page has been touched.
+// lastTouchedPanel will be set to a pointer to the
+// touched panel (or NULL of no panel was found for the coordinates).
+boolean isPanelTouched(int tpX, int tpY) {
+    lastTouchedPanel = DisplayPanel::touchedPanel(pages[pageNumber], tpX, tpY);
+    return lastTouchedPanel != NULL;
+}
+```
+
+The `on_touch:` stanza will check if a touch has occured and then perform the desired logic. In `tft-office.yaml`s `touch:` `on_touch:` stanza, we see where it checks for touch on the `contUpPanel` and `contDownPanel` DisplayPanels, adjust `brightness` accordingly, and sets the TFTs `backlight` to the value stored of `brightness`.
 
 ```yaml
-touchscreen:
   on_touch:
     then:
       - if:
           condition:
             lambda: |-
-              return contUpPanel.isTouchOnPanel((id(touch)).x, (id(touch)).y);
+              return isPanelTouched((id(touch)).x, (id(touch)).y);
           then:
             - lambda: |-
-                // Increase brightness 1%
-                id(brightness) = id(brightness) + 0.01 > 1 ? 1.0 : id(brightness) + 0.01;
-                id(backlight).set_level(id(brightness));
-                // ...
-        # ...
+                ESP_LOGD("yaml", "touched name=%s", (lastTouchedPanel->name.c_str()));
+            - if:
+                condition:
+                  lambda: |-
+                    return (lastTouchedPanel == &contUpPanel);
+                then:
+                  - lambda: |-
+                      // Increase brightness 1%
+                      id(brightness) = id(brightness) + 0.01 > 1 ? 1.0 : id(brightness) + 0.01;
+                      id(backlight).set_level(id(brightness));
+                      sprintf(buffer, "Increased to %.0f%%", id(brightness)*100);
+                      enableFlash({"Brightness", buffer});
+            - if:
+                condition:
+                  lambda: |-
+                    return (lastTouchedPanel == &contDownPanel);
+                then:
+                  - lambda: |-
+                      // Decrease brightness 1%
+                      id(brightness) = id(brightness) - 0.01 < 0 ? 0.0 : id(brightness) - 0.01;
+                      id(backlight).set_level(id(brightness));
+                      sprintf(buffer, "Decreased to %.0f%%", id(brightness)*100);
+                      enableFlash({"Brightness", buffer});
 ```
