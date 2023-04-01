@@ -160,13 +160,14 @@ class DisplayPanel {
             topPadding = topPadding >= 0 ? topPadding : 0;
 
             int lineNum = 0;
-            for (std::vector<std::string>::iterator t = text.begin(); t != text.end(); t++) {
-                std::string text = *t;
+            int size = text.size();
+            for (int i = 0; i < size; i++) {
+                std::string line = text[i];
                 int printY = y + topPadding + (lineNum * textHeight);
                 display.print(
                     x + ((int) (w/2)), 
                     y + topPadding + (lineNum * textHeight) + fontVertOffset, 
-                    font, textColor, TextAlign::TOP_CENTER, text.c_str());
+                    font, textColor, TextAlign::TOP_CENTER, line.c_str());
                 lineNum++;
             }
         }
