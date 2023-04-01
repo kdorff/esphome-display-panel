@@ -88,21 +88,16 @@ class DisplayPanel {
         }
 
         static void drawAllPanels(esphome::display::DisplayBuffer& display, std::vector<DisplayPanel*> panels) {
-            int size = panels.size();
-            for (int i = 0; i < size; i++) {
-                DisplayPanel* panel = panels[i];
+            for (auto &panel : panels) {
                 panel->drawRect(display);
             }
-            for (int i = 0; i < size; i++) {
-                DisplayPanel* panel = panels[i];
+            for (auto &panel : panels) {
                 panel->drawImageOrText(display);
             }
         }
 
         static DisplayPanel* touchedPanel(std::vector<DisplayPanel*> panels, int tpX, int tpY) {
-            int size = panels.size();
-            for (int i = 0; i < size; i++) {
-                DisplayPanel* panel = panels[i];
+            for (auto &panel : panels) {
                 if (panel->isTouchOnPanel(tpX, tpY)) {
                     ESP_LOGD("DisplayPanel", "touched %s x=%d, y=%d", panel->text[0].c_str(), tpX, tpX);
                     return panel;
@@ -160,9 +155,7 @@ class DisplayPanel {
             topPadding = topPadding >= 0 ? topPadding : 0;
 
             int lineNum = 0;
-            int size = text.size();
-            for (int i = 0; i < size; i++) {
-                std::string line = text[i];
+            for (auto &line : text) {
                 int printY = y + topPadding + (lineNum * textHeight);
                 display.print(
                     x + ((int) (w/2)), 
