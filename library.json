@@ -1,6 +1,6 @@
 {
     "name": "esphome-display-panel",
-    "version": "v0.0.13",
+    "version": "v0.0.14",
     "description": "DisplayPanel makes it easier to make UIs for esphome display, including simplifing touch.",
     "keywords": "esphome display",
     "repository": {
