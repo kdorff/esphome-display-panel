@@ -36,12 +36,12 @@ esphome:
   includes:
     - tft-room-time-temp.h
   libraries:
-    esphome-display-panel=https://github.com/kdorff/esphome-display-panel.git#v0.0.12
+    esphome-display-panel=https://github.com/kdorff/esphome-display-panel.git#v0.0.14
 ```
 
 The `includes:` stanza is including the `tft-room-time-temp.h` file where we will be doing data initialization, state updates, drawing, etc.
 
-The `libraries:` stanza is include this `esphome-display-panel project`, version `v0.0.11`.
+The `libraries:` stanza is include this `esphome-display-panel project`, version `v0.0.14`.
 
 ## The .h file, adding the esphome-display-panel library
 
@@ -120,7 +120,7 @@ int pageNumber = 0;
 DisplayPanel* lastTouchedPanel = NULL;
 
 // The display/lcd we are working with. Defined in initializePanels().
-esphome::display::DisplayBuffer* lcd;
+esphome::display::Display* lcd;
 
 
 // The constructor arguments are X, Y, Width, Height
@@ -143,7 +143,7 @@ std::vector<std::vector<DisplayPanel*>> pages = {
 The method `initializePanels(...)` should only be called once. It should define the initial font, color, text color, etc. for each of the DisplayPanels. Anything that doesn't change when the display is redrawn should be set here. 
 
 ```C++
-void initializePanels(esphome::display::DisplayBuffer &display) {
+void initializePanels(esphome::display::Display &display) {
     lcd = &display;
 
     dayPanel.font = font_day;
@@ -186,7 +186,7 @@ This is where the panel is actually drawn to the display.
 This should call `.draw(...)` for each DisplayPanel, and/or use the more optimized `DisplayPanel::drawAllPanels(...)` to more than one DisplayPanel in a single call.
 
 ```C++
-void drawPanels(esphome::display::DisplayBuffer &display) {
+void drawPanels(esphome::display::Display &display) {
     DisplayPanel::drawAllPanels(*lcd, pages[pageNumber]);
 }
 ```
