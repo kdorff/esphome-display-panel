@@ -49,10 +49,10 @@ class DisplayPanel {
         esphome::Color textColor;
 
         // Font of the text printed to the panel
-        esphome::display::Font *font;
+        esphome::display::BaseFont *font;
 
         // Image. If provided will be used instead of of text.
-        esphome::display::Image *image = NULL;
+        esphome::display::BaseImage *image = NULL;
 
         // Text lines to print on the panel.
         std::vector<std::string> text = { };
@@ -73,7 +73,7 @@ class DisplayPanel {
             max_y = _y + _h;
         }
 
-        void draw(esphome::display::DisplayBuffer &display) {
+        void draw(esphome::display::Display &display) {
             drawRect(display);
             drawImageOrText(display);
         }
@@ -87,7 +87,7 @@ class DisplayPanel {
                 (tpY >= y && tpY <= max_y);
         }
 
-        static void drawAllPanels(esphome::display::DisplayBuffer& display, std::vector<DisplayPanel*> panels) {
+        static void drawAllPanels(esphome::display::Display& display, std::vector<DisplayPanel*> panels) {
             for (auto &panel : panels) {
                 panel->drawRect(display);
             }
@@ -109,7 +109,7 @@ class DisplayPanel {
     protected:
         // Draw the Panel in the specified location
         // at the specified color.
-        void drawRect(esphome::display::DisplayBuffer &display) {
+        void drawRect(esphome::display::Display &display) {
             if (!enabled || w == 0 || h == 0) {
                 // Noththing to draw.
                 return;
@@ -123,7 +123,7 @@ class DisplayPanel {
             }
         }
 
-        void drawImageOrText(esphome::display::DisplayBuffer &display) {
+        void drawImageOrText(esphome::display::Display &display) {
             if (!enabled || w == 0 || h == 0) {
                 // Noththing to draw.
                 return;
@@ -144,7 +144,7 @@ class DisplayPanel {
 
         // Print centered text with padding from the top.
         // Useful if printing multiple lines of text within a Panel.
-        void printMulti(esphome::display::DisplayBuffer &display, 
+        void printMulti(esphome::display::Display &display, 
                 std::vector<std::string> &text) {
 
             // Determine the height of a line
@@ -167,7 +167,7 @@ class DisplayPanel {
 
         // Print text in the middle of the panel.
         // Useful if printing a single line of text within a Panel.
-        void printMiddle(esphome::display::DisplayBuffer &display,
+        void printMiddle(esphome::display::Display &display,
                 const char *text) {
             display.print(
                 x + ((int) (w/2)), 
@@ -176,7 +176,7 @@ class DisplayPanel {
         }
 
         // Draw image on panel.
-        void drawImage(esphome::display::DisplayBuffer &display) {
+        void drawImage(esphome::display::Display &display) {
             display.image(x, y, image);
         }
 };
